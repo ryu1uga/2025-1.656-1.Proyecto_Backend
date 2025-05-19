@@ -1,55 +1,55 @@
-import "./GamePage.css"
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import type { Game } from "../../components/game/GameList";
+import "./GamePage.css";
 
 const GamePage = () => {
+    const [games, setGames] = useState<Game[]>([]);
 
-    return <body className="container">
-        <h1>Available Games</h1>
-        <div className="d-flex justify-content-around flex-wrap">
-            <a href="./AdminGameAddPage/AdminGameAddPage.html" id="addGame" className="btn btn-secondary">Add Game</a>
-        </div>
-        <div className="d-grid gap-2">
-            <div className="row">
-                <div className="col-10 d-flex align-items-center">
-                    <a href="./AdminGameDetailPage/AdminGameDetailPage.html" className="btn game">Game name 1</a>
-                </div>
-                <div className="col-2 d-flex align-items-center">
-                    <button className="btn delete" type="button">Delete</button>
-                </div>
+    useEffect(() => {
+        const juegosGuardadosStr = localStorage.getItem("games");
+        if (juegosGuardadosStr) {
+            try {
+                const juegos = eval(juegosGuardadosStr);
+                setGames(juegos);
+            } catch {
+                setGames([]);
+            }
+        } else {
+            setGames([]);
+        }
+    }, []);
+
+    const handleDelete = (id: number) => {
+        const actualizados = games.filter(g => g.id !== id);
+        setGames(actualizados);
+        localStorage.setItem("games", `[${actualizados.map(g => `{"id":${g.id},"name":"${g.name}"}`).join(",")}]`);
+    };
+
+    return (
+        <div className="container">
+            <h1>Available Games</h1>
+            <div className="d-flex justify-content-around flex-wrap">
+                <Link to="/game/add" id="addGame" className="btn btn-secondary">
+                    Add Game
+                </Link>
             </div>
-            <div className="row">
-                <div className="col-10 d-flex align-items-center">
-                    <a href="./AdminGameDetailPage/AdminGameDetailPage.html" className="btn game">Game name 2</a>
-                </div>
-                <div className="col-2 d-flex align-items-center">
-                    <button className="btn delete" type="button">Delete</button>
-                </div>
-            </div>
-            <div className="row">
-                <div className="col-10 d-flex align-items-center">
-                    <a href="./AdminGameDetailPage/AdminGameDetailPage.html" className="btn game">Game name 3</a>
-                </div>
-                <div className="col-2 d-flex align-items-center">
-                    <button className="btn delete" type="button">Delete</button>
-                </div>
-            </div>
-            <div className="row">
-                <div className="col-10 d-flex align-items-center">
-                    <a href="./AdminGameDetailPage/AdminGameDetailPage.html" className="btn game">Game name 4</a>
-                </div>
-                <div className="col-2 d-flex align-items-center">
-                    <button className="btn delete" type="button">Delete</button>
-                </div>
-            </div>
-            <div className="row">
-                <div className="col-10 d-flex align-items-center">
-                    <a href="./AdminGameDetailPage/AdminGameDetailPage.html" className="btn game">Game name 5</a>
-                </div>
-                <div className="col-2 d-flex align-items-center">
-                    <button className="btn delete" type="button">Delete</button>
-                </div>
+            <div className="d-grid gap-2">
+                {games.map((game) => (
+                    <div className="row" key={game.id}>
+                        <div className="col-10 d-flex align-items-center">
+                            <span className="btn btn-outline-dark w-100 text-start">{game.name}</span>
+                        </div>
+                        <div className="col-2 d-flex align-items-center">
+                            <button className="btn delete" onClick={() => handleDelete(game.id)}>
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                ))}
             </div>
         </div>
-    </body>
-}
+    );
+};
 
-export default GamePage
+export default GamePage;    
