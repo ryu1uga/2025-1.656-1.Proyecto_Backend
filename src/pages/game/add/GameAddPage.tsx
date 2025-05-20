@@ -7,7 +7,7 @@ const GameAddPage = () => {
     const [name, setName] = useState("");
     const navigate = useNavigate();
 
-    const handleAddGame = () => {
+    const addGame = () => {
         if (!name.trim()) return;
 
         const nuevoJuego: Game = {
@@ -15,11 +15,11 @@ const GameAddPage = () => {
             name: name.trim()
         };
 
-        // Guardar nuevo juego sin usar JSON manualmente
+        // Guardar nuevo juego utilizando JSON.parse() y JSON.stringify
         const juegosAnterioresStr = localStorage.getItem("games");
-        const juegos = juegosAnterioresStr ? [...eval(juegosAnterioresStr)] : [];
+        const juegos = juegosAnterioresStr ? JSON.parse(juegosAnterioresStr) : [];
         juegos.push(nuevoJuego);
-        localStorage.setItem("games", `[${juegos.map(g => `{"id":${g.id},"name":"${g.name}"}`).join(",")}]`);
+        localStorage.setItem("games", JSON.stringify(juegos)); // Guarda el array actualizado con JSON.stringify
 
         navigate("/game");
     };
@@ -33,7 +33,7 @@ const GameAddPage = () => {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
             />
-            <button className="btn addGame" onClick={handleAddGame}>
+            <button className="btn addGame" onClick={addGame}>
                 Add Game
             </button>
         </div>

@@ -1,29 +1,25 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import type { Game } from "../../components/game/GameList";
 import "./GamePage.css";
 
 const GamePage = () => {
-    const [games, setGames] = useState<Game[]>([]);
-
-    useEffect(() => {
+    const [games, setGames] = useState<Game[]>(() => {
         const juegosGuardadosStr = localStorage.getItem("games");
         if (juegosGuardadosStr) {
             try {
-                const juegos = eval(juegosGuardadosStr);
-                setGames(juegos);
+                return JSON.parse(juegosGuardadosStr);
             } catch {
-                setGames([]);
+                return [];
             }
-        } else {
-            setGames([]);
         }
-    }, []);
+        return [];
+    });
 
     const handleDelete = (id: number) => {
         const actualizados = games.filter(g => g.id !== id);
         setGames(actualizados);
-        localStorage.setItem("games", `[${actualizados.map(g => `{"id":${g.id},"name":"${g.name}"}`).join(",")}]`);
+        localStorage.setItem("games", JSON.stringify(actualizados));
     };
 
     return (
@@ -52,4 +48,4 @@ const GamePage = () => {
     );
 };
 
-export default GamePage;    
+export default GamePage;
