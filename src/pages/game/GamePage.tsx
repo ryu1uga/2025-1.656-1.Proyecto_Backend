@@ -16,8 +16,8 @@ const GamePage = () => {
         return [];
     });
 
-    const handleDelete = (id: number) => {
-        const actualizados = games.filter(g => g.id !== id);
+    const deleteGame = (id: number) => {
+        const actualizados = games.filter(game => game.id !== id);
         setGames(actualizados);
         localStorage.setItem("games", JSON.stringify(actualizados));
     };
@@ -37,7 +37,7 @@ const GamePage = () => {
                             <span className="btn btn-outline-dark w-100 text-start">{game.name}</span>
                         </div>
                         <div className="col-2 d-flex align-items-center">
-                            <button className="btn delete" onClick={() => handleDelete(game.id)}>
+                            <button className="btn delete" onClick={() => deleteGame(game.id)}>
                                 Delete
                             </button>
                         </div>
