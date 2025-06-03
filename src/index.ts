@@ -10,23 +10,31 @@ app.get("/", (req : Request, resp : Response) => {
     resp.send("Endpoint raiz de Backend")
 })
 
+//Games CRUD
+
 app.get("/games", (req : Request, resp : Response) => {
     const games = gamesList
     const state = req.query.state
+    let filteredGames = []
     if (state == undefined)
     {
-        resp.json(games)
-        return
+        filteredGames = games
     }
-    const filteredGames = []
-    for (let game of games)
+    else
     {
-        if (game.state.toString() == state)
+        for (let game of games)
         {
-            filteredGames.push(game)
+            if (game.state.toString() == state)
+            {
+                filteredGames.push(game)
+            }
         }
     }
-    resp.json(filteredGames)
+    
+    resp.status(200).json({
+        success : true,
+        data : filteredGames
+    })
 })
 
 app.get("/games/:id", (req : Request, resp : Response) => {
@@ -41,7 +49,19 @@ app.get("/games/:id", (req : Request, resp : Response) => {
             break
         }
     }
-    resp.json(gameFounded)
+
+    if (gameFounded == null)
+    {
+        resp.status(404).json({
+            success : false,
+            data : "Game not found"
+        })
+    }
+
+    resp.status(200).json({
+        success : true,
+        data : gameFounded
+    })
 })
 
 app.listen(PORT, () => {
