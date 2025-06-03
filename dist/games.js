@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.gameLists = void 0;
-exports.gameLists = [
+exports.gamesList = void 0;
+exports.gamesList = [
     {
         id: 1,
         name: "The Legend of Zelda: Breath of the Wild",
