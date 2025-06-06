@@ -1,10 +1,13 @@
 import express, {Request, Response} from "express"
 import dotenv from "dotenv"
+import bodyParser from "body-parser"
 import { Game, gamesList } from "./games"
 
 dotenv.config()
 const app = express()
 const PORT = process.env.PORT
+
+app.use(bodyParser.json())
 
 app.get("/", (req : Request, resp : Response) => {
     resp.send("Endpoint raiz de Backend")
@@ -56,11 +59,35 @@ app.get("/games/:id", (req : Request, resp : Response) => {
             success : false,
             data : "Game not found"
         })
+        return
     }
 
     resp.status(200).json({
         success : true,
         data : gameFounded
+    })
+})
+
+app.post("/games", (req : Request, resp : Response) => {
+    const game = req.body
+    const games = gamesList
+
+    games.push({
+        id : new Date().getTime(),
+        name : game.name,
+        rating : 0,
+        price : game.price,
+        category : game.category,
+        description : game.description,
+        coments : game.coments || [],
+        images_url : game.images_url || [],
+        trailer : game.trailer || [],
+        state : 1
+    })
+
+    resp.status(200).json({
+        success : true,
+        data : "Game created without any error"
     })
 })
 

@@ -1,0 +1,10 @@
+POST http://localhost:5010/games
+Content-Type: application/json
+
+{ 
+    "name" : "test game", 
+    "price" : 100, 
+    "category" : "test category",
+    "description" : "test description",
+    "state" : 1
+}
