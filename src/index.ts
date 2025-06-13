@@ -1,13 +1,18 @@
 import express, { Request, Response } from "express"
 import dotenv from "dotenv"
 import bodyParser from "body-parser"
+import cors from "cors"
 import { Game, gamesList } from "./games"
 
 dotenv.config()
 const app = express()
 const PORT = process.env.PORT
 
+app.use(cors())
 app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({
+    extended : true
+}))
 
 app.get("/", (req: Request, resp: Response) => {
     resp.send("Endpoint raiz de Backend")
@@ -67,6 +72,8 @@ app.post("/games", (req: Request, resp: Response) => {
         category: game.category,
         description: game.description,
         coments: game.coments || [],
+        sells: game.sells || 0,
+        company: game.company || "Unknown",
         images_url: game.images_url || [],
         trailer: game.trailer || [],
         state: 1
