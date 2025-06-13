@@ -49,6 +49,7 @@ app.get("/games/:id", (req, resp) => {
             success: false,
             data: "Game not found"
         });
+        return;
     }
     resp.status(200).json({
         success: true,
@@ -65,8 +66,9 @@ app.post("/games", (req, resp) => {
         price: game.price,
         category: game.category,
         description: game.description,
-        coments: [],
-        trailer: [],
+        coments: game.coments || [],
+        images_url: game.images_url || [],
+        trailer: game.trailer || [],
         state: 1
     });
     resp.status(200).json({

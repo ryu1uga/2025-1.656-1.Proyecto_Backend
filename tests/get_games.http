@@ -1,1 +1,2 @@
-GET http://localhost:5010/games
+GET http://localhost:5000/games
+Content-Type: application/json

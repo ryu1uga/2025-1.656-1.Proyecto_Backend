@@ -1,4 +1,4 @@
-POST http://localhost:5010/games
+POST http://localhost:5000/games
 Content-Type: application/json
 
 { 
