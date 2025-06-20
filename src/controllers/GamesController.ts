@@ -8,35 +8,46 @@ const GamesController = () => {
     router.get("/", async (req: Request, resp: Response) => {
         const prisma = new PrismaClient()
         const state = req.query.state
+        
+        try {
+            if (state == undefined) {
+                const games = await prisma.game.findMany()
+                resp.status(200).json({
+                    success: true,
+                    data: games
+                })
+                return
+            }
 
-        if (state == undefined) {
-            const games = await prisma.game.findMany()
+            if (typeof state != "string" || isNaN(Number(state)))
+            {
+                resp.status(400).json({
+                    success: false,
+                    data: "Should send a valid state"
+                })
+                return
+            }
+        
+            const games = await prisma.game.findMany({
+                where: {
+                    state : Number(state)
+                }
+            })
+
             resp.status(200).json({
                 success: true,
                 data: games
             })
-            return
         }
-
-        if (isNaN(Number(state)))
-        {
-            resp.status(400).json({
+        catch (e) {
+            resp.status(500).json({
                 success: false,
-                data: "Invalid value for game state"
+                data: {
+                    msg: "Unexpected error occurred while searching games",
+                    error: e
+                }
             })
-            return
         }
-
-        const games = await prisma.game.findMany({
-            where: {
-                state : Number(state)
-            }
-        })
-
-        resp.status(200).json({
-            success: true,
-            data: games
-        })
     })
 
     router.get("/:id", async (req: Request, resp: Response) => {
@@ -45,119 +56,6 @@ const GamesController = () => {
 
         if (isNaN(id))
         {
-            resp.status(404).json({
-                success: false,
-                data: "Game not found"
-            })
-            return
-        }
-
-        const game = await prisma.game.findUnique({
-            where : {
-                id : id
-            }
-        })
-
-        if (!game) {
-            resp.status(404).json({
-                success: false,
-                data: "Game not found"
-            })
-            return
-        }
-
-        resp.status(200).json({
-            success: true,
-            data: game
-        })
-    })
-
-    router.post("/", async (req: Request, resp: Response) => {
-        const prisma = new PrismaClient()
-        const gameData = req.body
-
-        try {
-            const game = await prisma.game.create({
-                data: {
-                    name: gameData.name,
-                    rating: 0,
-                    price: gameData.price,
-                    category: gameData.category,
-                    description: gameData.description,
-                    sells: gameData.sells || 0,
-                    company: gameData.company || "Unknown",
-                    state: 1,
-                    coments: gameData.coments || [],
-                    images_url: gameData.images_url || [],
-                    trailer: gameData.trailer || []
-                }
-            })
-
-            resp.status(200).json({
-                success: true,
-                data: game
-            })
-        }
-        catch (e) {
-            resp.status(400).json({
-                success: false,
-                msg: "An error occurred while creating game"
-            })
-        }
-    })
-
-    router.put("/", (req: Request, resp: Response) => {
-        const prisma = new PrismaClient()
-        const modifiedGame = req.body
-        const games = gamesList
-
-        if (!modifiedGame.id) {
-            resp.status(400).json({
-                success: false,
-                data: "Should send any id to search the game"
-            })
-            return
-        }
-
-        for (let game of games) {
-            if (game.id.toString() == modifiedGame.id) {
-                game.name = modifiedGame.name ? modifiedGame.name : game.name
-                game.price = modifiedGame.price ? modifiedGame.price : game.price
-                game.category = modifiedGame.category ? modifiedGame.category : game.category
-                game.description = modifiedGame.description ? modifiedGame.description : game.description
-                game.state = modifiedGame.state ? modifiedGame.state : game.state
-
-                resp.status(200).json({
-                    success: true,
-                    data: "Game modified without any error"
-                })
-                return
-            }
-        }
-
-        resp.status(404).json({
-            success: false,
-            data: "Game not found"
-        })
-    })
-
-    router.delete("/:id", (req: Request, resp: Response) => {
-        const prisma = new PrismaClient()
-        const games = gamesList
-        const id = req.params.id
-
-        let index: number | null = null
-        let counter = 0
-
-        for (let game of games) {
-            if (game.id.toString() == id) {
-                index = counter
-                break
-            }
-            counter++
-        }
-
-        if (index == null) {
             resp.status(400).json({
                 success: false,
                 data: "Should send a valid id"
@@ -165,12 +63,195 @@ const GamesController = () => {
             return
         }
 
-        gamesList.splice(index, 1)
+        try {
+            const game = await prisma.game.findUnique({
+                where : {
+                    id : id
+                }
+            })
 
-        resp.status(200).json({
-            success: true,
-            data: "Game deleted without any error"
-        })
+            if (!game) {
+                resp.status(404).json({
+                    success: false,
+                    data: "Game not found"
+                })
+                return
+            }
+
+            resp.status(200).json({
+                success: true,
+                data: game
+            })
+        }
+        catch (e) {
+            resp.status(500).json({
+                success: false,
+                data: {
+                    msg: "Unexpected error occurred while searching game",
+                    error: e
+                }
+            })
+        }
+    })
+
+    router.post("/", async (req: Request, resp: Response) => {
+        const prisma = new PrismaClient()
+        const game = req.body
+        
+        if (!game.name || !game.price || !game.category || !game.description) {
+            resp.status(400).json({
+                success: false,
+                data: "Missing required fields"
+            })
+            return
+        }
+
+        if (typeof game.price != "number" || isNaN(game.price)) {
+            resp.status(400).json({
+                success: false,
+                data: "Price should be a valid number"
+            })
+            return
+        }
+
+        try {
+            await prisma.game.create({
+                data: {
+                    name: game.name,
+                    rating: 0,
+                    price: game.price,
+                    category: game.category,
+                    description: game.description,
+                    sells: game.sells || 0,
+                    company: game.company || "Unknown",
+                    state: 1,
+                    coments: game.coments || [],
+                    images_url: game.images_url || [],
+                    trailer: game.trailer || []
+                }
+            })
+
+            resp.status(201).json({
+                success: true,
+                data: "Game created without any error"
+            })
+        }
+        catch (e) {
+            resp.status(500).json({
+                success: false,
+                data: {
+                    msg: "Unexpected error occurred while creating game",
+                    error: e
+                }
+            })
+        }
+    })
+
+    router.put("/:id", async (req: Request, resp: Response) => {
+        const prisma = new PrismaClient()
+        const id = req.params.id
+        const modifiedGame = req.body
+
+        if (typeof modifiedGame.price != "number" || isNaN(modifiedGame.price)) {
+            resp.status(400).json({
+                success: false,
+                data: "Price should be a valid number"
+            })
+            return
+        }
+
+        if (!id || isNaN(Number(id)))
+        {
+            resp.status(400).json({
+                success: false,
+                data: "Should send a valid id"
+            })
+            return
+        }
+
+        if ('id' in modifiedGame) {
+            delete modifiedGame.id
+        }
+
+        try {
+            const game = await prisma.game.update({
+                where: {
+                    id: Number(id)
+                },
+                data: modifiedGame
+            })
+
+            if (!game)
+            {
+                resp.status(404).json({
+                    success: false,
+                    data: "Game not found"
+                })
+                return
+            }
+
+            resp.status(200).json({
+                success: true,
+                data: "Game updated without any error"
+            })
+        }
+        catch (e) {
+            resp.status(500).json({
+                success: false,
+                data: {
+                    msg: "Unexpected error occurred while modifying game",
+                    error: e
+                }
+            })
+        }
+    })
+
+    router.delete("/:id", async (req: Request, resp: Response) => {
+        const prisma = new PrismaClient()
+        const id = req.params.id
+
+        if (!id || isNaN(Number(id))) {
+            resp.status(400).json({
+                success: false,
+                data: "Should send a valid id"
+            })
+            return
+        }
+        
+        try {
+            const game = await prisma.game.findUnique({
+                where: {
+                    id: Number(id)
+                }
+            })
+
+            if (!game) {
+                resp.status(404).json({
+                    success: false,
+                    data: "Game not found"
+                })
+                return
+            }
+
+            await prisma.game.delete({
+                where: {
+                    id: Number(id)
+                }
+            })
+
+            resp.status(200).json({
+                msg: "Game deleted without any error"
+            })
+        }
+        catch (e) {
+            resp.status(500).json({
+                success: false,
+                data: {
+                    msg: "Unexpected error occurred while deleting game",
+                    error: e
+                }
+            })
+        }
     })
 
     return router

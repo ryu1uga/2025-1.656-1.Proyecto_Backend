@@ -1,8 +1,7 @@
-PUT http://localhost:5000/games
+PUT http://localhost:5000/games/1
 Content-Type: application/json
 
 { 
-    "id" : 1,
     "name" : "modified test game", 
     "price" : 1000, 
     "category" : "modified test category",

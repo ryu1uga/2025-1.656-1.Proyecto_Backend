@@ -21,5 +21,5 @@ app.get("/", (req: Request, resp: Response) => {
 app.use("/games", GamesController())
 
 app.listen(PORT, () => {
-    console.log(`Se inicio servidor en puerto ${PORT}`)
+    console.log(`Se inicio servidor en http://localhost:${PORT}/`)
 })
