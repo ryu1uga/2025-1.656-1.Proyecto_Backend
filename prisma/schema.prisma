@@ -8,6 +8,14 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+  id Int @id @default(autoincrement())
+  email String @unique
+  password String
+  usertype Int @default(0)
+  state Int @default(1)
+}
+
 model Game {
   id Int @id @default(autoincrement())
   name String
@@ -20,5 +28,5 @@ model Game {
   company String
   images_url String[] @default([]) //nullable
   trailer String[] @default([]) //nullable
-  state Int
+  state Int @default(1)
 }

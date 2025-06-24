@@ -1,5 +1,4 @@
 import express, { Request, Response } from "express"
-import { gamesList } from "../games"
 import { PrismaClient } from "../generated/prisma"
 
 const GamesController = () => {

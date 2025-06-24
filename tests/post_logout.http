@@ -1,0 +1,7 @@
+POST http://localhost:5000/users/logout
+content-type: application/json
+Authorization: Bearer PROGRAWEB
+
+{
+    "id" : 4
+}

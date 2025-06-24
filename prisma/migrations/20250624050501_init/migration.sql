@@ -1,4 +1,15 @@
 -- CreateTable
+CREATE TABLE "User" (
+    "id" SERIAL NOT NULL,
+    "email" TEXT NOT NULL,
+    "password" TEXT NOT NULL,
+    "usertype" INTEGER NOT NULL DEFAULT 0,
+    "state" INTEGER NOT NULL DEFAULT 1,
+
+    CONSTRAINT "User_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "Game" (
     "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
@@ -11,7 +22,10 @@ CREATE TABLE "Game" (
     "company" TEXT NOT NULL,
     "images_url" TEXT[] DEFAULT ARRAY[]::TEXT[],
     "trailer" TEXT[] DEFAULT ARRAY[]::TEXT[],
-    "state" INTEGER NOT NULL,
+    "state" INTEGER NOT NULL DEFAULT 1,
 
     CONSTRAINT "Game_pkey" PRIMARY KEY ("id")
 );
+
+-- CreateIndex
+CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
