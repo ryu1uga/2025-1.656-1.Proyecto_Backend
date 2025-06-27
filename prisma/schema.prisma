@@ -1,5 +1,6 @@
 generator client {
   provider = "prisma-client-js"
+  previewFeatures = ["relationJoins"]
   output   = "../src/generated/prisma"
 }
 
@@ -10,6 +11,8 @@ datasource db {
 
 model User {
   id Int @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt @default(now())
   email String @unique
   password String
   name String
@@ -22,7 +25,8 @@ model User {
 
 model Sell {
   id Int @id @default(autoincrement())
-  date DateTime @default(now())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt @default(now())
   amount Float
   userId Int
   gameId Int
@@ -32,7 +36,8 @@ model Sell {
 
 model Rating {
   id Int @id @default(autoincrement())
-  date DateTime @default(now())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt @default(now())
   rating Float
   Comment String?
   userId Int
@@ -43,6 +48,8 @@ model Rating {
 
 model Game {
   id Int @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt @default(now())
   name String
   price Float
   description String
@@ -58,6 +65,8 @@ model Game {
 
 model GameImage {
   id Int @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt @default(now())
   url String
   gameId Int
   game Game @relation(fields: [gameId], references: [id], onDelete: Cascade)
@@ -65,6 +74,8 @@ model GameImage {
 
 model GameTrailer {
   id Int @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt @default(now())
   url String
   gameId Int
   game Game @relation(fields: [gameId], references: [id], onDelete: Cascade)
@@ -72,12 +83,16 @@ model GameTrailer {
 
 model Category {
   id Int @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt @default(now())
   name String
   games Game[]
 }
 
 model News {
   id Int @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt @default(now())
   title String
   text String
   state Int @default(1)

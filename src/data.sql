@@ -7,11 +7,11 @@ INSERT INTO public."Category" (name) VALUES
 ('Sports');
 
 INSERT INTO public."User" (email, password, name, token, usertype, state) VALUES
-('fabrizzio@email.pw', 'Fabrizzio_PW', 'Fabrizzio', '', 0, 0),
-('gianfranco@email.pw', 'Gianfranco_PW', 'Gianfranco', '', 0, 0),
-('lucas@email.pw', 'Lucas_PW', 'Lucas', '', 0, 0),
-('ryuichi@email.pw', 'Ryuichi_PW', 'Ryuichi', '', 1, 0),
-('giancarlo@email.pw', 'Giancarlo_PW', 'Giancarlo', '', 1, 0);
+('fabrizzio@email.pw', 'Fabrizzio_PW', 'Fabrizzio', NULL, 0, 0),
+('gianfranco@email.pw', 'Gianfranco_PW', 'Gianfranco', NULL, 0, 0),
+('lucas@email.pw', 'Lucas_PW', 'Lucas', NULL, 0, 0),
+('ryuichi@email.pw', 'Ryuichi_PW', 'Ryuichi', NULL, 1, 0),
+('giancarlo@email.pw', 'Giancarlo_PW', 'Giancarlo', NULL, 1, 0);
 
 INSERT INTO public."Game" (name, price, description, company, "categoryId", state) VALUES
 ('The Legend of Zelda: Breath of the Wild', 31.5, 'Embárcate en una épica aventura en un vasto mundo abierto lleno de misterio y maravillas...', 'Nintendo', 1, 0),

@@ -36,10 +36,10 @@ const UsersController = () => {
         const prisma = new PrismaClient()
         const user = req.body
 
-        if (!user.email || !user.password) {
+        if (!user.email || !user.password || !user.name) {
             resp.status(400).json({
                 success: false,
-                data: "Email and password are required"
+                data: "Email, password and name are required"
             })
             return 
         }

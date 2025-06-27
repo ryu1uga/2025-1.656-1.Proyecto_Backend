@@ -28,6 +28,7 @@ const GamesController = () => {
             }
         
             const games = await prisma.game.findMany({
+                relationLoadStrategy : "join",
                 where: { state : Number(state) },
                 include: {
                     images: true,
@@ -66,6 +67,7 @@ const GamesController = () => {
 
         try {
             const game = await prisma.game.findUnique({
+                relationLoadStrategy : "join",
                 where : { id : id },
                 include: {
                     images: true,
@@ -101,7 +103,7 @@ const GamesController = () => {
         const prisma = new PrismaClient()
         const game = req.body
         
-        if (!game.name || !game.price || !game.category || !game.description) {
+        if (!game.name || !game.price || !game.category || !game.description || !game.categoryId) {
             resp.status(400).json({
                 success: false,
                 data: "Missing required fields"
@@ -189,7 +191,7 @@ const GamesController = () => {
         }
 
         try {
-            const updatedGame = await prisma.game.update({
+            await prisma.game.update({
                 where: { id },
                 data: {
                     name: modifiedGame.name,
