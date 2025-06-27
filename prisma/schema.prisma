@@ -40,6 +40,8 @@ model Rating {
   updatedAt DateTime @updatedAt @default(now())
   rating Float
   Comment String?
+  likes Int @default(0)
+  dislikes Int @default(0)
   userId Int
   gameId Int
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
