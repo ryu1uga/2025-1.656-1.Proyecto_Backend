@@ -28,8 +28,10 @@ const GamesController = () => {
             }
         
             const games = await prisma.game.findMany({
-                where: {
-                    state : Number(state)
+                where: { state : Number(state) },
+                include: {
+                    images: true,
+                    trailers: true
                 }
             })
 
@@ -64,8 +66,10 @@ const GamesController = () => {
 
         try {
             const game = await prisma.game.findUnique({
-                where : {
-                    id : id
+                where : { id : id },
+                include: {
+                    images: true,
+                    trailers: true
                 }
             })
 
@@ -114,21 +118,34 @@ const GamesController = () => {
         }
 
         try {
-            await prisma.game.create({
-                data: {
-                    name: game.name,
-                    rating: 0,
-                    price: game.price,
-                    category: game.category,
-                    description: game.description,
-                    sells: game.sells || 0,
-                    company: game.company || "Unknown",
-                    state: 1,
-                    coments: game.coments || [],
-                    images_url: game.images_url || [],
-                    trailer: game.trailer || []
-                }
+            const newGame = await prisma.game.create({
+            data: {
+                name: game.name,
+                price: game.price,
+                description: game.description,
+                company: game.company || "Unknown",
+                state: 1,
+                category: { connect: { id: game.category } }
+            }
             })
+
+            if (game.images && Array.isArray(game.images)) {
+            await prisma.gameImage.createMany({
+                data: game.images.map((url: string) => ({
+                    url,
+                    gameId: newGame.id
+                }))
+            })
+            }
+
+            if (game.trailers && Array.isArray(game.trailers)) {
+            await prisma.gameTrailer.createMany({
+                data: game.trailers.map((url: string) => ({
+                    url,
+                    gameId: newGame.id
+                }))
+            })
+            }
 
             resp.status(201).json({
                 success: true,
@@ -148,19 +165,10 @@ const GamesController = () => {
 
     router.put("/:id", async (req: Request, resp: Response) => {
         const prisma = new PrismaClient()
-        const id = req.params.id
+        const id = Number(req.params.id)
         const modifiedGame = req.body
 
-        if (typeof modifiedGame.price != "number" || isNaN(modifiedGame.price)) {
-            resp.status(400).json({
-                success: false,
-                data: "Price should be a valid number"
-            })
-            return
-        }
-
-        if (!id || isNaN(Number(id)))
-        {
+        if (isNaN(id)) {
             resp.status(400).json({
                 success: false,
                 data: "Should send a valid id"
@@ -172,29 +180,56 @@ const GamesController = () => {
             delete modifiedGame.id
         }
 
+        if ('price' in modifiedGame && (typeof modifiedGame.price !== "number" || isNaN(modifiedGame.price))) {
+            resp.status(400).json({
+                success: false,
+                data: "Price should be a valid number"
+            })
+            return
+        }
+
         try {
-            const game = await prisma.game.update({
-                where: {
-                    id: Number(id)
-                },
-                data: modifiedGame
+            const updatedGame = await prisma.game.update({
+                where: { id },
+                data: {
+                    name: modifiedGame.name,
+                    price: modifiedGame.price,
+                    description: modifiedGame.description,
+                    company: modifiedGame.company,
+                    state: modifiedGame.state,
+                    category: modifiedGame.category ? { connect: { id: modifiedGame.category } } : undefined
+                }
             })
 
-            if (!game)
-            {
-                resp.status(404).json({
-                    success: false,
-                    data: "Game not found"
-                })
-                return
+            if ('images' in modifiedGame && Array.isArray(modifiedGame.images)) {
+                await prisma.gameImage.deleteMany({ where: { gameId: id } })
+                if (modifiedGame.images.length > 0) {
+                    await prisma.gameImage.createMany({
+                        data: modifiedGame.images.map((url: string) => ({
+                            url,
+                            gameId: id
+                        }))
+                    })
+                }
+            }
+
+            if ('trailers' in modifiedGame && Array.isArray(modifiedGame.trailers)) {
+                await prisma.gameTrailer.deleteMany({ where: { gameId: id } })
+                if (modifiedGame.trailers.length > 0) {
+                    await prisma.gameTrailer.createMany({
+                        data: modifiedGame.trailers.map((url: string) => ({
+                            url,
+                            gameId: id
+                        }))
+                    })
+                }
             }
 
             resp.status(200).json({
                 success: true,
-                data: "Game updated without any error"
+                data: "Game updated successfully"
             })
-        }
-        catch (e) {
+        } catch (e) {
             resp.status(500).json({
                 success: false,
                 data: {

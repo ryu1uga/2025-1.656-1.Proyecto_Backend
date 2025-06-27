@@ -4,7 +4,7 @@ Content-Type: application/json
 { 
     "name" : "test game", 
     "price" : 100, 
-    "category" : "test category",
+    "category" : 1,
     "description" : "test description",
     "state" : 1
 }

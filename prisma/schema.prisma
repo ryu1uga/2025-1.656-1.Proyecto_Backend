@@ -12,21 +12,73 @@ model User {
   id Int @id @default(autoincrement())
   email String @unique
   password String
+  name String
+  token String?
   usertype Int @default(0)
   state Int @default(1)
+  sells Sell[]
+  ratings Rating[]
+}
+
+model Sell {
+  id Int @id @default(autoincrement())
+  date DateTime @default(now())
+  amount Float
+  userId Int
+  gameId Int
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  game Game @relation(fields: [gameId], references: [id], onDelete: Cascade)
+}
+
+model Rating {
+  id Int @id @default(autoincrement())
+  date DateTime @default(now())
+  rating Float
+  Comment String?
+  userId Int
+  gameId Int
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  game Game @relation(fields: [gameId], references: [id], onDelete: Cascade)
 }
 
 model Game {
   id Int @id @default(autoincrement())
   name String
-  rating Float
   price Float
-  category String
   description String
-  coments String[] @default([]) //nullable
-  sells Int
   company String
-  images_url String[] @default([]) //nullable
-  trailer String[] @default([]) //nullable
+  state Int @default(1)
+  sells Sell[]
+  ratings Rating[]
+  categoryId Int
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  images GameImage[]
+  trailers GameTrailer[]
+}
+
+model GameImage {
+  id Int @id @default(autoincrement())
+  url String
+  gameId Int
+  game Game @relation(fields: [gameId], references: [id], onDelete: Cascade)
+}
+
+model GameTrailer {
+  id Int @id @default(autoincrement())
+  url String
+  gameId Int
+  game Game @relation(fields: [gameId], references: [id], onDelete: Cascade)
+}
+
+model Category {
+  id Int @id @default(autoincrement())
+  name String
+  games Game[]
+}
+
+model News {
+  id Int @id @default(autoincrement())
+  title String
+  text String
   state Int @default(1)
 }

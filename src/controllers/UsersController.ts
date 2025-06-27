@@ -62,7 +62,9 @@ const UsersController = () => {
             await prisma.user.create({
                 data: {
                     email : user.email,
-                    password: user.password
+                    password : user.password,
+                    name: user.name,
+                    token: TOKEN
                 }
             })
 
@@ -120,7 +122,10 @@ const UsersController = () => {
 
             await prisma.user.update({
                 where: { id: user.id },
-                data: { state: 1 }
+                data: {
+                    state: 1,
+                    token: TOKEN
+                }
             })
 
             resp.status(200).json({
@@ -158,7 +163,10 @@ const UsersController = () => {
             
             await prisma.user.update({
                 where: { id: id },
-                data: { state: 0 }
+                data: {
+                    state: 0,
+                    token: null
+                }
             })
 
             resp.status(200).json({
