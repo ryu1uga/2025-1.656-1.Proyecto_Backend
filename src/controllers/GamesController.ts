@@ -10,7 +10,16 @@ const GamesController = () => {
         
         try {
             if (state == undefined) {
-                const games = await prisma.game.findMany()
+                const games = await prisma.game.findMany({
+                    relationLoadStrategy : "join",
+                    include: {
+                        sells: true,
+                        ratings: true,
+                        category: true,
+                        images: true,
+                        trailers: true
+                    }
+                })
                 resp.status(200).json({
                     success: true,
                     data: games
@@ -31,6 +40,9 @@ const GamesController = () => {
                 relationLoadStrategy : "join",
                 where: { state : Number(state) },
                 include: {
+                    sells: true,
+                    ratings: true,
+                    category: true,
                     images: true,
                     trailers: true
                 }
@@ -70,6 +82,9 @@ const GamesController = () => {
                 relationLoadStrategy : "join",
                 where : { id : id },
                 include: {
+                    sells: true,
+                    ratings: true,
+                    category: true,
                     images: true,
                     trailers: true
                 }
