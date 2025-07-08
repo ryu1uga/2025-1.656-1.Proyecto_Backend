@@ -1,4 +1,4 @@
-POST http://localhost:5000/users/logout
+POST http://localhost:5050/users/logout
 content-type: application/json
 Authorization: Bearer PROGRAWEB
 

@@ -133,7 +133,9 @@ const UsersController = () => {
                 data: {
                     id: user.id,
                     email: user.email,
-                    token: TOKEN
+                    token: TOKEN,
+                    usertype: user.usertype,
+                    state: user.state
                 }
             })
         }
