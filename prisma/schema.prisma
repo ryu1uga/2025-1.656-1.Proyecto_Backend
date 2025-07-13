@@ -63,8 +63,7 @@ model Game {
   category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   images GameImage[]
   trailers GameTrailer[]
-  attachmentId? Int @unique
-  attachment GameAttachment @relation(fields: [attachmentId], references: [id], onDelete: Cascade)
+  attachment GameAttachment?
 }
 
 model GameImage {
@@ -90,8 +89,8 @@ model GameAttachment{
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt @default(now())
   url String
-  gameId Int
-  game Game?
+  gameId Int @unique
+  game Game @relation(fields: [gameId], references: [id], onDelete: Cascade)
 }
 
 model Category {

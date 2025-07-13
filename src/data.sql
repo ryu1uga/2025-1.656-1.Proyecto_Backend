@@ -95,3 +95,6 @@ INSERT INTO public."GameTrailer" (url, "gameId") VALUES
 ('https://www.youtube.com/watch?v=u4-FCsiF5x4', 9),
 ('https://www.youtube.com/watch?v=8X2kIfS6fb8', 10),
 ('https://www.youtube.com/watch?v=OTv7xd8PTpg', 11);
+
+INSERT INTO public."GameAttachment" (url, "gameId") VALUES
+('/imagenes/juegos/cyberpunk2077/attachment.jpg', 10);

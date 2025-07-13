@@ -17,7 +17,8 @@ const GamesController = () => {
                         ratings: true,
                         category: true,
                         images: true,
-                        trailers: true
+                        trailers: true,
+                        attachment: true
                     }
                 })
                 resp.status(200).json({
@@ -44,7 +45,8 @@ const GamesController = () => {
                     ratings: true,
                     category: true,
                     images: true,
-                    trailers: true
+                    trailers: true,
+                    attachment: true
                 }
             })
 
@@ -86,7 +88,8 @@ const GamesController = () => {
                     ratings: true,
                     category: true,
                     images: true,
-                    trailers: true
+                    trailers: true,
+                    attachment: true
                 }
             })
 
@@ -136,32 +139,41 @@ const GamesController = () => {
 
         try {
             const newGame = await prisma.game.create({
-            data: {
-                name: game.name,
-                price: game.price,
-                description: game.description,
-                company: game.company || "Unknown",
-                state: 1,
-                category: { connect: { id: game.category } }
-            }
+                data: {
+                    name: game.name,
+                    price: game.price,
+                    description: game.description,
+                    company: game.company || "Unknown",
+                    state: 1,
+                    category: { connect: { id: game.category } }
+                }
             })
 
             if (game.images && Array.isArray(game.images)) {
-            await prisma.gameImage.createMany({
-                data: game.images.map((url: string) => ({
-                    url,
-                    gameId: newGame.id
-                }))
-            })
+                await prisma.gameImage.createMany({
+                    data: game.images.map((url: string) => ({
+                        url,
+                        gameId: newGame.id
+                    }))
+                })
             }
 
             if (game.trailers && Array.isArray(game.trailers)) {
-            await prisma.gameTrailer.createMany({
-                data: game.trailers.map((url: string) => ({
-                    url,
-                    gameId: newGame.id
-                }))
-            })
+                await prisma.gameTrailer.createMany({
+                    data: game.trailers.map((url: string) => ({
+                        url,
+                        gameId: newGame.id
+                    }))
+                })
+            }
+
+            if (game.attachment) {
+                await prisma.gameAttachment.create({
+                    data: {
+                        url: game.attachment.url,
+                        gameId: newGame.id
+                    }
+                })
             }
 
             resp.status(201).json({
@@ -238,6 +250,18 @@ const GamesController = () => {
                             url,
                             gameId: id
                         }))
+                    })
+                }
+            }
+
+            if ('attachment' in modifiedGame) {
+                await prisma.gameAttachment.delete({ where: { gameId: id } })
+                if (modifiedGame.attachment.length > 0) {
+                    await prisma.gameAttachment.create({
+                        data: {
+                            url: modifiedGame.attachment.url,
+                            gameId: id
+                        }
                     })
                 }
             }
