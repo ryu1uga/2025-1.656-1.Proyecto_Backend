@@ -61,4 +61,10 @@ const main = async () => {
             { url: 'https://www.youtube.com/watch?v=OTv7xd8PTpg', gameId: 11 }
         ]
     })
+
+    await prisma.gameAttachment.createMany({
+        data: [
+            { url: '/imagenes/juegos/cyberpunk2077/attachment.jpg', gameId: 1 }
+        ]
+    })
 }
