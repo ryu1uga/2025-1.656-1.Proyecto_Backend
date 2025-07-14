@@ -18,7 +18,7 @@ const mailer_1 = require("../utils/mailer");
 const SellsController = () => {
     const router = express_1.default.Router();
     const generarCodigoNumerico = () => {
-        return Math.floor(1000000000 + Math.random() * 9000000000);
+        return Math.floor(10000000 + Math.random() * 90000000); // genera entre 10000000 y 99999999
     };
     router.post("/game-code", (req, resp) => __awaiter(void 0, void 0, void 0, function* () {
         const prisma = new prisma_1.PrismaClient();
@@ -68,7 +68,12 @@ const SellsController = () => {
                 </ul>
                 <p>¡Disfruta tus juegos!</p>
             `;
-            yield (0, mailer_1.sendMail)(user.email, "Tus claves de juegos - LP Store", html);
+            yield mailer_1.transporter.sendMail({
+                from: `"Proyecto PW" <20211953@aloe.ulima.edu.pe>`,
+                to: user.email,
+                subject: "Tus claves de juegos - LP Store",
+                html: html
+            });
             resp.status(200).json({
                 success: true,
                 message: "Claves generadas y correo enviado.",
@@ -77,6 +82,86 @@ const SellsController = () => {
         }
         catch (error) {
             console.error("Error en /game-code:", error);
+            resp.status(500).json({
+                success: false,
+                message: "Error interno del servidor",
+            });
+        }
+        finally {
+            yield prisma.$disconnect();
+        }
+    }));
+    router.post("/checkout", (req, resp) => __awaiter(void 0, void 0, void 0, function* () {
+        const prisma = new prisma_1.PrismaClient();
+        const { userId } = req.body;
+        if (userId == undefined) {
+            resp.status(400).json({
+                success: false, message: "Falta userId"
+            });
+            return;
+        }
+        try {
+            const user = yield prisma.user.findUnique({ where: { id: userId } });
+            if (!user || !user.email) {
+                resp.status(404).json({
+                    success: false, message: "Usuario no encontrado o sin email"
+                });
+                return;
+            }
+            // 1. Obtener carrito del usuario
+            const cartItems = yield prisma.cart.findMany({
+                where: { userId },
+                include: { game: true }
+            });
+            if (cartItems.length == 0) {
+                resp.status(400).json({
+                    success: false, message: "Carrito vacío"
+                });
+                return;
+            }
+            // 2. Crear ventas con código
+            const sells = yield Promise.all(cartItems.map((item) => __awaiter(void 0, void 0, void 0, function* () {
+                const codigo = generarCodigoNumerico();
+                return prisma.sell.create({
+                    data: {
+                        userId: userId,
+                        gameId: item.gameId,
+                        amount: item.game.price,
+                        code: codigo
+                    },
+                    include: { game: true }
+                });
+            })));
+            // 3. Eliminar el carrito
+            yield prisma.cart.deleteMany({
+                where: { userId }
+            });
+            // 4. Preparar correo
+            const claves = sells.map((venta) => ({
+                title: venta.game.name,
+                key: venta.code
+            }));
+            const html = `
+            <h2>Gracias por tu compra, ${user.name}:</h2>
+            <ul>
+                ${claves.map(c => `<li><strong>${c.title}</strong>: ${c.key}</li>`).join("")}
+            </ul>
+            <p>¡Disfruta tus juegos!</p>
+            `;
+            yield mailer_1.transporter.sendMail({
+                from: `"Proyecto PW" <20211953@aloe.ulima.edu.pe>`,
+                to: user.email,
+                subject: "Tus claves de juegos - LP Store",
+                html: html
+            });
+            resp.status(200).json({
+                success: true,
+                message: "Compra procesada correctamente y claves enviadas.",
+                data: claves
+            });
+        }
+        catch (error) {
+            console.error("Error en /checkout", error);
             resp.status(500).json({
                 success: false,
                 message: "Error interno del servidor",

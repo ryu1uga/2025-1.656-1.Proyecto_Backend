@@ -18,36 +18,45 @@ const GamesController = () => {
     const router = express_1.default.Router();
     router.get("/", (req, resp) => __awaiter(void 0, void 0, void 0, function* () {
         const prisma = new prisma_1.PrismaClient();
-        const state = req.query.state;
+        const { state, busqueda, precioMin, precioMax, ofertas, categorias, plataformas } = req.query;
         try {
-            if (state == undefined) {
-                const games = yield prisma.game.findMany({
-                    relationLoadStrategy: "join",
-                    include: {
-                        sells: true,
-                        ratings: true,
-                        category: true,
-                        images: true,
-                        trailers: true,
-                        attachment: true
-                    }
-                });
-                resp.status(200).json({
-                    success: true,
-                    data: games
-                });
-                return;
+            const filtros = {};
+            if (typeof busqueda === "string" && busqueda.trim() !== "") {
+                filtros.name = {
+                    contains: busqueda,
+                    mode: "insensitive"
+                };
             }
-            if (typeof state != "string" || isNaN(Number(state))) {
+            if (typeof precioMin === "string" && !isNaN(Number(precioMin))) {
+                filtros.price = Object.assign(Object.assign({}, filtros.price), { gte: Number(precioMin) });
+            }
+            if (typeof precioMax === "string" && !isNaN(Number(precioMax))) {
+                filtros.price = Object.assign(Object.assign({}, filtros.price), { lte: Number(precioMax) });
+            }
+            if (ofertas === "true") {
+                filtros.price = Object.assign(Object.assign({}, filtros.price), { lt: 20 }); // ejemplo: ofertas si precio < 20
+            }
+            if (categorias) {
+                const categoriasArray = Array.isArray(categorias) ? categorias : [categorias];
+                filtros.category = { name: { in: categoriasArray } };
+            }
+            if (plataformas) {
+                const plataformasArray = Array.isArray(plataformas) ? plataformas : [plataformas];
+                filtros.plataformas = { in: plataformasArray };
+            }
+            if (state !== undefined && (typeof state !== "string" || isNaN(Number(state)))) {
                 resp.status(400).json({
                     success: false,
                     data: "Should send a valid state"
                 });
                 return;
             }
+            if (state !== undefined) {
+                filtros.state = Number(state);
+            }
             const games = yield prisma.game.findMany({
+                where: filtros,
                 relationLoadStrategy: "join",
-                where: { state: Number(state) },
                 include: {
                     sells: true,
                     ratings: true,
@@ -209,7 +218,7 @@ const GamesController = () => {
     router.post("/", (req, resp) => __awaiter(void 0, void 0, void 0, function* () {
         const prisma = new prisma_1.PrismaClient();
         const game = req.body;
-        if (!game.name || !game.price || !game.category || !game.description || !game.categoryId) {
+        if (!game.name || !game.price || !game.category || !game.description || !game.plataformas) {
             resp.status(400).json({
                 success: false,
                 data: "Missing required fields"
@@ -231,7 +240,8 @@ const GamesController = () => {
                     description: game.description,
                     company: game.company || "Unknown",
                     state: 1,
-                    category: { connect: { id: game.category } }
+                    category: { connect: { id: game.category } },
+                    plataformas: game.plataformas
                 }
             });
             if (game.images && Array.isArray(game.images)) {

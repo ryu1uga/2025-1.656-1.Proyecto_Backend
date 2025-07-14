@@ -10,7 +10,8 @@ const cors_1 = __importDefault(require("cors"));
 const GamesController_1 = __importDefault(require("./controllers/GamesController"));
 const UsersController_1 = __importDefault(require("./controllers/UsersController"));
 const NewsController_1 = __importDefault(require("./controllers/NewsController"));
-//import SellsController from "./controllers/SellsController"
+const SellsController_1 = __importDefault(require("./controllers/SellsController"));
+const CartController_1 = __importDefault(require("./controllers/CartController"));
 dotenv_1.default.config();
 const PORT = process.env.PORT;
 const app = (0, express_1.default)();
@@ -25,6 +26,8 @@ app.get("/", (req, resp) => {
 app.use("/games", (0, GamesController_1.default)());
 app.use("/users", (0, UsersController_1.default)());
 app.use("/news", (0, NewsController_1.default)());
+app.use("/sells", (0, SellsController_1.default)());
+app.use("/cart", (0, CartController_1.default)());
 app.listen(PORT, () => {
     console.log(`Se inicio servidor en http://localhost:${PORT}/`);
 });

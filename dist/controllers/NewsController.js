@@ -100,7 +100,7 @@ const NewsController = () => {
         if (!title || !text) {
             resp.status(400).json({
                 success: false,
-                data: "Missing required fields: title and text"
+                data: "Missing required fields: title and text",
             });
             return;
         }
@@ -109,20 +109,25 @@ const NewsController = () => {
                 data: {
                     title,
                     text,
-                    state: 1
-                }
+                    state: 1,
+                },
             });
             if (attachment && attachment.url) {
                 yield prisma.newsAttachment.create({
                     data: {
                         url: attachment.url,
-                        newsId: newNews.id
-                    }
+                        newsId: newNews.id,
+                    },
                 });
             }
+            // Devolver la noticia creada con su attachment
+            const createdNews = yield prisma.news.findUnique({
+                where: { id: newNews.id },
+                include: { attachment: true },
+            });
             resp.status(201).json({
                 success: true,
-                data: "News created successfully"
+                data: createdNews,
             });
         }
         catch (e) {
@@ -130,8 +135,8 @@ const NewsController = () => {
                 success: false,
                 data: {
                     msg: "Unexpected error occurred while creating news",
-                    error: e
-                }
+                    error: e,
+                },
             });
         }
     }));
