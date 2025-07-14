@@ -2,6 +2,6 @@ POST http://localhost:5050/users/login
 content-type: application/json
 
 {
-    "email" : "ryuichi@email.pw",
+    "email" : "20211953@aloe.ulima.edu.pe",
     "password" : "Ryuichi_PW"
 }

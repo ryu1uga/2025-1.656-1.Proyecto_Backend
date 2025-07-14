@@ -6,76 +6,25 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const body_parser_1 = __importDefault(require("body-parser"));
-const games_1 = require("./games");
+const cors_1 = __importDefault(require("cors"));
+const GamesController_1 = __importDefault(require("./controllers/GamesController"));
+const UsersController_1 = __importDefault(require("./controllers/UsersController"));
+const NewsController_1 = __importDefault(require("./controllers/NewsController"));
+//import SellsController from "./controllers/SellsController"
 dotenv_1.default.config();
-const app = (0, express_1.default)();
 const PORT = process.env.PORT;
+const app = (0, express_1.default)();
+app.use((0, cors_1.default)());
 app.use(body_parser_1.default.json());
+app.use(body_parser_1.default.urlencoded({
+    extended: true
+}));
 app.get("/", (req, resp) => {
     resp.send("Endpoint raiz de Backend");
 });
-//Games CRUD
-app.get("/games", (req, resp) => {
-    const games = games_1.gamesList;
-    const state = req.query.state;
-    let filteredGames = [];
-    if (state == undefined) {
-        filteredGames = games;
-    }
-    else {
-        for (let game of games) {
-            if (game.state.toString() == state) {
-                filteredGames.push(game);
-            }
-        }
-    }
-    resp.status(200).json({
-        success: true,
-        data: filteredGames
-    });
-});
-app.get("/games/:id", (req, resp) => {
-    const games = games_1.gamesList;
-    const id = req.params.id;
-    let gameFounded = null;
-    for (let game of games) {
-        if (game.id.toString() == id) {
-            gameFounded = game;
-            break;
-        }
-    }
-    if (gameFounded == null) {
-        resp.status(404).json({
-            success: false,
-            data: "Game not found"
-        });
-        return;
-    }
-    resp.status(200).json({
-        success: true,
-        data: gameFounded
-    });
-});
-app.post("/games", (req, resp) => {
-    const game = req.body;
-    const games = games_1.gamesList;
-    games.push({
-        id: new Date().getTime(),
-        name: game.name,
-        rating: 0,
-        price: game.price,
-        category: game.category,
-        description: game.description,
-        coments: game.coments || [],
-        images_url: game.images_url || [],
-        trailer: game.trailer || [],
-        state: 1
-    });
-    resp.status(200).json({
-        success: true,
-        data: "Game created without any error"
-    });
-});
+app.use("/games", (0, GamesController_1.default)());
+app.use("/users", (0, UsersController_1.default)());
+app.use("/news", (0, NewsController_1.default)());
 app.listen(PORT, () => {
-    console.log(`Se inicio servidor en puerto ${PORT}`);
+    console.log(`Se inicio servidor en http://localhost:${PORT}/`);
 });

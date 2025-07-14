@@ -1,11 +1,23 @@
-import express, { Request, Response, NextFunction } from "express"
-import dotenv from "dotenv"
-import { PrismaClient } from "../generated/prisma"
-import nodemailer from "nodemailer"
-import { transporter } from "../utils/mailer"
-
-dotenv.config()
-const TOKEN = process.env.TOKEN
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = __importDefault(require("express"));
+const dotenv_1 = __importDefault(require("dotenv"));
+const prisma_1 = require("../generated/prisma");
+const mailer_1 = require("../utils/mailer");
+dotenv_1.default.config();
+const TOKEN = process.env.TOKEN;
 /*const transporter = nodemailer.createTransport({
     service: "gmail", // u otro servicio
     auth: {
@@ -14,75 +26,64 @@ const TOKEN = process.env.TOKEN
     }
 })*/
 const UsersController = () => {
-    const router = express.Router()
-
-    function AuthenticateToken(req : Request, resp : Response, next : NextFunction) {
-        const token = req.headers["authorization"]
-
+    const router = express_1.default.Router();
+    function AuthenticateToken(req, resp, next) {
+        const token = req.headers["authorization"];
         if (!token) {
             resp.status(403).json({
                 success: false,
                 message: "Authorization header missing"
-            })
-            return
+            });
+            return;
         }
-
-        const [prefix, value] = token.split(" ")
-
+        const [prefix, value] = token.split(" ");
         if (prefix != "Bearer" || value != TOKEN) {
             resp.status(403).json({
                 success: false,
                 message: "Invalid token"
-            })
-            return
+            });
+            return;
         }
-
-        next()
+        next();
     }
-
-    router.post("/register", async (req: Request, resp: Response) => {
-        const prisma = new PrismaClient()
-        const user = req.body
-
+    router.post("/register", (req, resp) => __awaiter(void 0, void 0, void 0, function* () {
+        const prisma = new prisma_1.PrismaClient();
+        const user = req.body;
         if (!user.email || !user.password || !user.name) {
             resp.status(400).json({
                 success: false,
                 data: "Email, password and name are required"
-            })
-            return 
+            });
+            return;
         }
-
         try {
-            const existingUser = await prisma.user.findUnique({
+            const existingUser = yield prisma.user.findUnique({
                 where: {
-                    email : user.email
+                    email: user.email
                 }
-            })
-
+            });
             if (existingUser) {
                 resp.status(409).json({
                     success: false,
                     data: "User already exists"
-                })
-                return
+                });
+                return;
             }
-
-            await prisma.user.create({
+            yield prisma.user.create({
                 data: {
-                    email : user.email,
-                    password : user.password,
+                    email: user.email,
+                    password: user.password,
                     name: user.name,
                     token: TOKEN
                 }
-            })
-
+            });
             resp.status(201).json({
                 success: true,
                 data: {
                     msg: "User created without any error",
                     token: TOKEN
                 }
-            })
+            });
         }
         catch (e) {
             resp.status(500).json({
@@ -91,51 +92,44 @@ const UsersController = () => {
                     msg: "Error registering user",
                     error: e
                 }
-            })
+            });
         }
-    })
-
-    router.post("/login", async (req: Request, resp: Response) => {
-        const prisma = new PrismaClient()
-        const { email, password } = req.body
-
+    }));
+    router.post("/login", (req, resp) => __awaiter(void 0, void 0, void 0, function* () {
+        const prisma = new prisma_1.PrismaClient();
+        const { email, password } = req.body;
         if (!email || !password) {
             resp.status(400).json({
                 success: false,
                 data: "Email and password are required"
-            })
-            return
+            });
+            return;
         }
-
         try {
-            const user = await prisma.user.findUnique({
+            const user = yield prisma.user.findUnique({
                 where: { email }
-            })
-
+            });
             if (!user) {
                 resp.status(401).json({
                     success: false,
                     data: "Email not registered"
-                })
-                return
+                });
+                return;
             }
-
             if (password != user.password) {
                 resp.status(401).json({
                     success: false,
                     data: "Invalid password"
-                })
-                return
+                });
+                return;
             }
-
-            const updatedUser = await prisma.user.update({
+            const updatedUser = yield prisma.user.update({
                 where: { id: user.id },
                 data: {
                     state: 1,
                     token: TOKEN
                 }
-            })
-
+            });
             resp.status(200).json({
                 success: true,
                 data: {
@@ -146,44 +140,40 @@ const UsersController = () => {
                     usertype: updatedUser.usertype,
                     state: updatedUser.state
                 }
-            })
-
-        } catch (e) {
+            });
+        }
+        catch (e) {
             resp.status(500).json({
                 success: false,
                 data: {
                     msg: "Error while logging in",
                     error: e
                 }
-            })
+            });
         }
-    })
-
-    router.post("/logout", AuthenticateToken, async (req: Request, resp: Response) => {
-        const prisma = new PrismaClient()
-        const id = req.body.id
+    }));
+    router.post("/logout", AuthenticateToken, (req, resp) => __awaiter(void 0, void 0, void 0, function* () {
+        const prisma = new prisma_1.PrismaClient();
+        const id = req.body.id;
         try {
-            if (!id || isNaN(Number(id)))
-            {
+            if (!id || isNaN(Number(id))) {
                 resp.status(400).json({
                     success: false,
                     data: "Should send a valid id"
-                })
-                return
+                });
+                return;
             }
-            
-            await prisma.user.update({
+            yield prisma.user.update({
                 where: { id: id },
                 data: {
                     state: 0,
                     token: null
                 }
-            })
-
+            });
             resp.status(200).json({
                 success: true,
                 data: "Logged out successfully"
-            })
+            });
         }
         catch (e) {
             resp.status(500).json({
@@ -192,119 +182,105 @@ const UsersController = () => {
                     msg: "Unespected error while logging out",
                     error: e
                 }
-            })
+            });
         }
-    })
+    }));
     // Configura el transpor
-
     // POST /users/send-verification-code
-    router.post("/send-verification-code", async (req: Request, resp: Response) => {
-        const prisma = new PrismaClient()
-        const { email } = req.body
-
+    router.post("/send-verification-code", (req, resp) => __awaiter(void 0, void 0, void 0, function* () {
+        const prisma = new prisma_1.PrismaClient();
+        const { email } = req.body;
         if (!email) {
             resp.status(400).json({
                 success: false,
                 data: "Email is required"
-            })
-            return
+            });
+            return;
         }
-
         try {
-            const user = await prisma.user.findUnique({ where: { email } })
-
+            const user = yield prisma.user.findUnique({ where: { email } });
             if (!user) {
                 resp.status(404).json({
                     success: false,
                     data: "User not found"
-                })
-                return
+                });
+                return;
             }
-
-            const code = Math.floor(100000 + Math.random() * 900000).toString()
-
-            await prisma.user.update({
+            const code = Math.floor(100000 + Math.random() * 900000).toString();
+            yield prisma.user.update({
                 where: { email },
                 data: { verificationCode: code }
-            })
-
-            await transporter.sendMail({
+            });
+            yield mailer_1.transporter.sendMail({
                 from: process.env.EMAIL_USER,
                 to: email,
                 subject: "Tu código de verificación",
                 html: `<p>Tu código de verificación es: ${code}</p>`
                 //text: `Tu código de verificación es: ${code}`
-            })
-
+            });
             resp.status(200).json({
                 success: true,
                 data: "Verification code sent to email"
-            })
-
-        } catch (e) {
+            });
+        }
+        catch (e) {
             resp.status(500).json({
                 success: false,
                 data: {
                     msg: "Error sending verification code",
                     error: e
                 }
-            })
+            });
         }
-    })
-
+    }));
     // POST /users/verify-code
-    router.post("/verify-code", async (req: Request, resp: Response) => {
-        const prisma = new PrismaClient()
-        const { email, code } = req.body
-
+    router.post("/verify-code", (req, resp) => __awaiter(void 0, void 0, void 0, function* () {
+        const prisma = new prisma_1.PrismaClient();
+        const { email, code } = req.body;
         if (!email || !code) {
             resp.status(400).json({
                 success: false,
                 data: "Email and code are required"
-            })
-            return
+            });
+            return;
         }
-
         try {
-            const user = await prisma.user.findUnique({ where: { email } })
-
+            const user = yield prisma.user.findUnique({ where: { email } });
             if (!user) {
                 resp.status(404).json({
                     success: false,
                     data: "User not found"
-                })
-                return
+                });
+                return;
             }
-
             if (user.verificationCode === code) {
                 // Podrías opcionalmente limpiar el código:
-                await prisma.user.update({
+                yield prisma.user.update({
                     where: { email },
                     data: { verificationCode: null }
-                })
-
+                });
                 resp.status(200).json({
                     success: true,
                     data: "Verification successful"
-                })
-            } else {
+                });
+            }
+            else {
                 resp.status(400).json({
                     success: false,
                     data: "Invalid verification code"
-                })
+                });
             }
-        } catch (e) {
+        }
+        catch (e) {
             resp.status(500).json({
                 success: false,
                 data: {
                     msg: "Error verifying code",
                     error: e
                 }
-            })
+            });
         }
-    })
-
-    return router
-}
-
-export default UsersController
+    }));
+    return router;
+};
+exports.default = UsersController;
