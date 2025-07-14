@@ -12,13 +12,3 @@ export const transporter = nodemailer.createTransport({
     pass: process.env.SMTP_PASS,
   },
 })
-
-export const sendMail = async (to: string, subject: string, html: string) => {
-  const info = await transporter.sendMail({
-    from: '"Proyecto PW" <${process.env.SMTP_FROM}>',
-    to,
-    subject,
-    html,
-  })
-  console.log("Correo enviado:", info.messageId)
-}

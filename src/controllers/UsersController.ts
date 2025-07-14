@@ -195,9 +195,101 @@ const UsersController = () => {
             })
         }
     })
-    // Configura el transpor
 
-    // POST /users/send-verification-code
+    router.put("/reset-password", async (req: Request, res: Response) => {
+        const prisma = new PrismaClient()
+        const { email, newPassword } = req.body
+
+        if (!email || !newPassword) {
+            res.status(400).json({
+                success: false,
+                message: "Email and new password are required"
+            })
+            return
+        }
+
+        try {
+            const user = await prisma.user.findUnique({ where: { email } })
+
+            if (!user) {
+                res.status(404).json({
+                    success: false,
+                    message: "User not found"
+                })
+                return
+            }
+
+            await prisma.user.update({
+                where: { email },
+                data: { password: newPassword }
+            })
+
+            res.status(200).json({
+                success: true,
+                message: "Password updated successfully"
+            })
+        } catch (error) {
+            console.error("Error updating password:", error)
+            res.status(500).json({
+                success: false,
+                message: "Internal server error"
+            })
+        } finally {
+            await prisma.$disconnect()
+        }
+    })
+
+    router.put("/update", async (req: Request, res: Response) => {
+        const prisma = new PrismaClient()
+        const { email, firstName } = req.body
+
+        if (!email || !firstName) {
+            res.status(400).json({
+                success: false,
+                data: "Email and first name are required"
+            })
+            return
+        }
+
+        try {
+            const user = await prisma.user.findUnique({ where: { email } })
+
+            if (!user) {
+                res.status(404).json({
+                    success: false,
+                    data: "User not found"
+                })
+                return
+            }
+
+            await prisma.user.update({
+                where: { email },
+                data: {
+                    name: firstName
+                }
+            })
+
+            res.status(200).json({
+                success: true,
+                data: {
+                    msg: "User updated successfully"
+                }
+            })
+        } catch (error) {
+            console.error("Error updating user:", error)
+            res.status(500).json({
+                success: false,
+                data: {
+                    msg: "Internal server error",
+                    error
+                }
+            })
+        } finally {
+            await prisma.$disconnect()
+        }
+    })
+
+
     router.post("/send-verification-code", async (req: Request, resp: Response) => {
         const prisma = new PrismaClient()
         const { email } = req.body
@@ -229,11 +321,10 @@ const UsersController = () => {
             })
 
             await transporter.sendMail({
-                from: process.env.EMAIL_USER,
+                from: `"Proyecto PW" <20211953@aloe.ulima.edu.pe>`,
                 to: email,
                 subject: "Tu código de verificación",
-                html: `<p>Tu código de verificación es: ${code}</p>`
-                //text: `Tu código de verificación es: ${code}`
+                html: `<p>Tu código de verificación es: <b>${code}</b></p>`
             })
 
             resp.status(200).json({
@@ -252,7 +343,6 @@ const UsersController = () => {
         }
     })
 
-    // POST /users/verify-code
     router.post("/verify-code", async (req: Request, resp: Response) => {
         const prisma = new PrismaClient()
         const { email, code } = req.body
@@ -277,7 +367,6 @@ const UsersController = () => {
             }
 
             if (user.verificationCode === code) {
-                // Podrías opcionalmente limpiar el código:
                 await prisma.user.update({
                     where: { email },
                     data: { verificationCode: null }

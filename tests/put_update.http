@@ -1,0 +1,7 @@
+PUT http://localhost:5050/users/update
+Content-Type: application/json
+
+{ 
+    "email" : "20214826@aloe.ulima.edu.pe", 
+    "firstName" : "NombreActualizado"
+}

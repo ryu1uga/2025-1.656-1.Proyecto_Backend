@@ -1,9 +1,9 @@
 INSERT INTO public."Category" (name) VALUES
-('Action-Adventure'),
+('Action_Adventure'),
 ('RPG'),
 ('Platformer'),
 ('Sandbox'),
-('Action-RPG'),
+('Action_RPG'),
 ('Sports');
 
 INSERT INTO public."User" (email, password, name, token, usertype, state) VALUES
@@ -13,18 +13,18 @@ INSERT INTO public."User" (email, password, name, token, usertype, state) VALUES
 ('20211953@aloe.ulima.edu.pe', 'Ryuichi_PW', 'Ryuichi', NULL, 1, 0),
 ('20203801@aloe.ulima.edu.pe', 'Giancarlo_PW', 'Giancarlo', NULL, 1, 0);
 
-INSERT INTO public."Game" (name, price, description, company, "categoryId", state) VALUES
-('The Legend of Zelda: Breath of the Wild', 31.5, 'Explora un vasto mundo abierto lleno de misterio y aventura.', 'Nintendo', 1, 0),
-('Red Dead Redemption 2', 61, 'Vive una épica historia en el salvaje oeste americano.', 'Rockstar Games', 1, 0),
-('The Witcher 3: Wild Hunt', 50, 'Embárcate en una aventura de fantasía como cazador de monstruos.', 'CD Projekt', 2, 0),
-('God of War (2018)', 23, 'Disfruta de una épica mitología nórdica con combates intensos.', 'Santa Monica Studio', 1, 0),
-('Elden Ring', 25, 'Descubre un mundo abierto lleno de desafíos y secretos.', 'FromSoftware', 2, 1),
-('Grand Theft Auto V', 185, 'Explora una ciudad abierta con acción y crimen sin límites.', 'Rockstar Games', 1, 1),
-('Super Mario Odyssey', 27, 'Acompaña a Mario en un viaje lleno de plataformas y creatividad.', 'Nintendo', 3, 1),
-('Minecraft', 300, 'Crea y explora un mundo infinito con bloques.', 'Mojang Studios', 4, 1),
-('Horizon Zero Dawn', 24, 'Sobrevive en un mundo postapocalíptico dominado por máquinas.', 'Guerrilla Games', 5, 1),
-('Cyberpunk 2077', 25, 'Vive una experiencia futurista en una ciudad cyberpunk.', 'CD Projekt', 2, 1),
-('Haxball', 100, 'Disfruta de un juego multijugador de fútbol con mecánicas simples.', 'Mario Carbajal', 6, 1);
+INSERT INTO public."Game" (name, price, description, company, plataformas, "categoryId", state) VALUES
+('The Legend of Zelda: Breath of the Wild', 31.5, 'Explora un vasto mundo abierto lleno de misterio y aventura.', 'Nintendo', 'Switch', 1, 0),
+('Red Dead Redemption 2', 61, 'Vive una épica historia en el salvaje oeste americano.', 'Rockstar Games','PS4', 1, 0),
+('The Witcher 3: Wild Hunt', 50, 'Embárcate en una aventura de fantasía como cazador de monstruos.', 'CD Projekt', 'Xbox', 2, 0),
+('God of War (2018)', 23, 'Disfruta de una épica mitología nórdica con combates intensos.', 'Santa Monica Studio', 'PS5',1, 0),
+('Elden Ring', 25, 'Descubre un mundo abierto lleno de desafíos y secretos.', 'FromSoftware', 'PC', 2, 1),
+('Grand Theft Auto V', 185, 'Explora una ciudad abierta con acción y crimen sin límites.', 'Rockstar Games', 'PC',1, 1),
+('Super Mario Odyssey', 27, 'Acompaña a Mario en un viaje lleno de plataformas y creatividad.', 'Nintendo','Switch', 3, 1),
+('Minecraft', 300, 'Crea y explora un mundo infinito con bloques.', 'Mojang Studios','Xbox', 4, 1),
+('Horizon Zero Dawn', 24, 'Sobrevive en un mundo postapocalíptico dominado por máquinas.', 'Guerrilla Games','PS5', 5, 1),
+('Cyberpunk 2077', 25, 'Vive una experiencia futurista en una ciudad cyberpunk.', 'CD Projekt', 'PS5',2, 1),
+('Haxball', 100, 'Disfruta de un juego multijugador de fútbol con mecánicas simples.', 'Mario Carbajal','PC', 6, 1);
 
 INSERT INTO public."GameImage" (url, "gameId") VALUES
 ('/imagenes/juegos/thelegendofzeldabreathofthewild/1.jpg', 1),

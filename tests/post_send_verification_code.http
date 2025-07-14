@@ -1,0 +1,6 @@
+POST http://localhost:5050/users/send-verification-code
+content-type: application/json
+
+{
+    "email" : "gianvasro@gmail.com"
+}

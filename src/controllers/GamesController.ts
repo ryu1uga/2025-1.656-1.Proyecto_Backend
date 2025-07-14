@@ -6,40 +6,55 @@ const GamesController = () => {
 
     router.get("/", async (req: Request, resp: Response) => {
         const prisma = new PrismaClient()
-        const state = req.query.state
-        
+        const { state, busqueda, precioMin, precioMax, ofertas, categorias, plataformas } = req.query
+
         try {
-            if (state == undefined) {
-                const games = await prisma.game.findMany({
-                    relationLoadStrategy : "join",
-                    include: {
-                        sells: true,
-                        ratings: true,
-                        category: true,
-                        images: true,
-                        trailers: true,
-                        attachment: true
-                    }
-                })
-                resp.status(200).json({
-                    success: true,
-                    data: games
-                })
-                return
+            const filtros: any = {}
+
+            if (typeof busqueda === "string" && busqueda.trim() !== "") {
+                filtros.name = {
+                    contains: busqueda,
+                    mode: "insensitive"
+                }
             }
 
-            if (typeof state != "string" || isNaN(Number(state)))
-            {
+            if (typeof precioMin === "string" && !isNaN(Number(precioMin))) {
+                filtros.price = { ...filtros.price, gte: Number(precioMin) }
+            }
+
+            if (typeof precioMax === "string" && !isNaN(Number(precioMax))) {
+                filtros.price = { ...filtros.price, lte: Number(precioMax) }
+            }
+
+            if (ofertas === "true") {
+                filtros.price = { ...filtros.price, lt: 20 } // ejemplo: ofertas si precio < 20
+            }
+
+            if (categorias) {
+                const categoriasArray = Array.isArray(categorias) ? categorias : [categorias]
+                filtros.category = { name: { in: categoriasArray } }
+            }
+
+            if (plataformas) {
+                const plataformasArray = Array.isArray(plataformas) ? plataformas : [plataformas]
+                filtros.plataformas = { in: plataformasArray }
+            }
+
+            if (state !== undefined && (typeof state !== "string" || isNaN(Number(state)))) {
                 resp.status(400).json({
                     success: false,
                     data: "Should send a valid state"
                 })
                 return
             }
-        
+
+            if (state !== undefined) {
+                filtros.state = Number(state)
+            }
+
             const games = await prisma.game.findMany({
-                relationLoadStrategy : "join",
-                where: { state : Number(state) },
+                where: filtros,
+                relationLoadStrategy: "join",
                 include: {
                     sells: true,
                     ratings: true,
@@ -54,8 +69,8 @@ const GamesController = () => {
                 success: true,
                 data: games
             })
-        }
-        catch (e) {
+
+        } catch (e) {
             resp.status(500).json({
                 success: false,
                 data: {
@@ -224,7 +239,7 @@ const GamesController = () => {
         const prisma = new PrismaClient()
         const game = req.body
         
-        if (!game.name || !game.price || !game.category || !game.description || !game.categoryId) {
+        if (!game.name || !game.price || !game.category || !game.description || !game.plataformas) {
             resp.status(400).json({
                 success: false,
                 data: "Missing required fields"
@@ -248,7 +263,8 @@ const GamesController = () => {
                     description: game.description,
                     company: game.company || "Unknown",
                     state: 1,
-                    category: { connect: { id: game.category } }
+                    category: { connect: { id: game.category } },
+                    plataformas: game.plataformas
                 }
             })
 

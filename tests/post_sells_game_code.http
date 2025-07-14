@@ -1,0 +1,6 @@
+POST http://localhost:5050/sells/game-code
+content-type: application/json
+
+{
+    "userId" : 3
+}

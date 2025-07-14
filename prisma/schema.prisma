@@ -22,6 +22,7 @@ model User {
   sells Sell[]
   ratings Rating[]
   verificationCode  String?
+  carts Cart[]
 }
 
 model Sell {
@@ -61,11 +62,13 @@ model Game {
   state Int @default(1)
   sells Sell[]
   ratings Rating[]
+  plataformas String
   categoryId Int
   category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   images GameImage[]
   trailers GameTrailer[]
   attachment GameAttachment?
+  carts Cart[]
 }
 
 model GameImage {
@@ -122,3 +125,12 @@ model NewsAttachment{
   news News @relation(fields: [newsId], references: [id], onDelete: Cascade)
 }
 
+model Cart {
+  id Int @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt @default(now())
+  userId Int
+  gameId Int
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  game Game @relation(fields: [gameId], references: [id], onDelete: Cascade)
+}
