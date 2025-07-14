@@ -97,4 +97,15 @@ INSERT INTO public."GameTrailer" (url, "gameId") VALUES
 ('https://www.youtube.com/watch?v=OTv7xd8PTpg', 11);
 
 INSERT INTO public."GameAttachment" (url, "gameId") VALUES
-('/imagenes/juegos/cyberpunk2077/attachment.jpg', 10);
+('/imagenes/juegos/thelegendofzeldabreathofthewild/attachment.jpg', 1), --zelda
+('/imagenes/juegos/reddeadredemption2/attachment.jpg', 2), --reddead 
+('/imagenes/juegos/thewitcher3wildhunt/attachment.jpg', 3), --thewitcher
+('/imagenes/juegos/godofwar(2018)/attachment.jpg', 4), --godofwar
+('/imagenes/juegos/eldenring/attachment.jpg', 5), --eldenring
+('/imagenes/juegos/grandtheftautov/attachment.jpg', 6), --GTA V
+('/imagenes/juegos/supermarioodyssey/attachment.jpg', 7), --super mario
+('/imagenes/juegos/minecraft/attachment.jpg', 8), --minecraft
+('/imagenes/juegos/horizonzerodawn/attachment.jpg', 9), --horizon
+('/imagenes/juegos/cyberpunk2077/attachment.jpg', 10), --cyberpunk
+('/imagenes/juegos/haxball/attachment.jpg', 11); --haxball
+

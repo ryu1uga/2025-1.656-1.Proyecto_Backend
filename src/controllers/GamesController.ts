@@ -65,6 +65,109 @@ const GamesController = () => {
             })
         }
     })
+    router.get("/sells", async (req: Request, resp: Response) => {
+        const prisma = new PrismaClient()
+        
+        try {
+            
+                const games = await prisma.game.findMany({
+                    relationLoadStrategy : "join",
+                    include: {
+                        sells: true,
+                        ratings: true,
+                        category: true,
+                        images: true,
+                        trailers: true,
+                        attachment: true,
+                        _count: {
+                            select:{sells:true}
+                        }
+                    },
+                    orderBy: {
+                        sells: {
+                            _count: "desc"
+                        }
+                    }
+                })
+                resp.status(200).json({
+                    success: true,
+                    data: games
+                })
+                return
+            
+        }
+        catch (e) {
+            resp.status(500).json({
+                success: false,
+                data: {
+                    msg: "Unexpected error occurred while searching games",
+                    error: e
+                }
+            })
+        }
+    })
+    router.get("/ratings", async (req: Request, resp: Response) => {
+    const prisma = new PrismaClient();
+
+        try {
+            const ratingsAvg = await prisma.rating.groupBy({
+                by: ["gameId"],
+                _avg: {
+                    rating: true
+                },
+                orderBy: {
+                    _avg: {
+                        rating: "desc"
+                    }
+                }
+            });
+
+            const avgMap = new Map<number, number>();
+            ratingsAvg.forEach(r => {
+                avgMap.set(r.gameId, r._avg.rating ?? 0);
+            });
+
+
+            const allGames = await prisma.game.findMany({
+                relationLoadStrategy: "join",
+                include: {
+                    sells: true,
+                    ratings: true,
+                    category: true,
+                    images: true,
+                    trailers: true,
+                    attachment: true
+                }
+            });
+
+            const gamesWithAvg = allGames.map(game => {
+                const avgRating = avgMap.get(game.id) ?? 0;
+                return {
+                    ...game,
+                    avgRating
+                };
+            });
+
+
+            const orderedGames = gamesWithAvg.sort((a, b) => b.avgRating - a.avgRating);
+
+            resp.status(200).json({
+                success: true,
+                data: orderedGames
+            });
+
+        } catch (e) {
+            resp.status(500).json({
+                success: false,
+                data: {
+                    msg: "Unexpected error occurred while searching games",
+                    error: e
+                }
+            });
+        }
+    });
+
+
 
     router.get("/:id", async (req: Request, resp: Response) => {
         const prisma = new PrismaClient()

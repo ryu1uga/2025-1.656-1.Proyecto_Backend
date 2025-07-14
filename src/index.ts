@@ -4,6 +4,7 @@ import bodyParser from "body-parser"
 import cors from "cors"
 import GamesController from "./controllers/GamesController"
 import UsersController from "./controllers/UsersController"
+import NewsController from "./controllers/NewsController"
 
 dotenv.config()
 const PORT = process.env.PORT
@@ -21,6 +22,7 @@ app.get("/", (req: Request, resp: Response) => {
 
 app.use("/games", GamesController())
 app.use("/users", UsersController())
+app.use("/news", NewsController())
 
 app.listen(PORT, () => {
     console.log(`Se inicio servidor en http://localhost:${PORT}/`)
