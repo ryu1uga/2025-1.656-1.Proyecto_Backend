@@ -109,3 +109,16 @@ INSERT INTO public."GameAttachment" (url, "gameId") VALUES
 ('/imagenes/juegos/cyberpunk2077/attachment.jpg', 10), --cyberpunk
 ('/imagenes/juegos/haxball/attachment.jpg', 11); --haxball
 
+INSERT INTO public."News" (title, text, state) VALUES
+('Lanzamiento de Elden Ring: Shadow of the Erdtree', 'La esperada expansión de Elden Ring ya está disponible con nuevas zonas, enemigos y jefes. Una experiencia brutal para los fans del género soulslike.', 1),
+('Nintendo anuncia nuevo Mario Kart', 'Durante el Nintendo Direct se reveló el desarrollo de Mario Kart 9, prometiendo nuevos circuitos, modos de juego y soporte online mejorado.', 1),
+('PlayStation revela detalles de God of War: Ragnarok 2', 'Santa Monica Studio confirmó que la secuela ya está en desarrollo y que Kratos y Atreus enfrentarán nuevos desafíos tras el fin del Fimbulwinter.', 1),
+('Xbox Game Pass incluirá Starfield desde el día uno', 'Bethesda ha confirmado que su esperado RPG espacial, Starfield, estará disponible en Game Pass desde su lanzamiento global.', 1),
+('The Legend of Zelda recibe actualización gratuita', 'Tears of the Kingdom recibe una expansión gratuita con nuevas mazmorras y objetos mágicos para ampliar la experiencia de juego.', 1);
+
+INSERT INTO public."NewsAttachment" (url, "newsId") VALUES
+('/imagenes/news/news1.jpg', 1),
+('/imagenes/news/news2.jpg', 2),
+('/imagenes/news/news3.jpg', 3),
+('/imagenes/news/news4.jpg', 4),
+('/imagenes/news/news5.jpg', 5);

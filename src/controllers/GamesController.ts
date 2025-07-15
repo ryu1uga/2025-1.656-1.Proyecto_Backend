@@ -3,6 +3,7 @@ import { PrismaClient } from "../generated/prisma"
 
 const GamesController = () => {
     const router = express.Router()
+    const prisma = new PrismaClient();
 
     router.get("/", async (req: Request, resp: Response) => {
         const prisma = new PrismaClient()
@@ -80,6 +81,7 @@ const GamesController = () => {
             })
         }
     })
+
     router.get("/sells", async (req: Request, resp: Response) => {
         const prisma = new PrismaClient()
         
@@ -121,6 +123,7 @@ const GamesController = () => {
             })
         }
     })
+
     router.get("/ratings", async (req: Request, resp: Response) => {
     const prisma = new PrismaClient();
 
@@ -181,8 +184,6 @@ const GamesController = () => {
             });
         }
     });
-
-
 
     router.get("/:id", async (req: Request, resp: Response) => {
         const prisma = new PrismaClient()
@@ -447,6 +448,39 @@ const GamesController = () => {
             })
         }
     })
+
+        router.post("/filter", async (req: Request, resp: Response) => {
+        const { releaseDate, category, priceMin, priceMax } = req.body;
+
+        try {
+            const filteredGames = await prisma.game.findMany({
+                where: {
+                    ...(releaseDate && { releaseDate: new Date(releaseDate) }),
+                    ...(category && { categoryId: category }),
+                    ...(priceMin && { price: { gte: parseFloat(priceMin) } }),
+                    ...(priceMax && { price: { lte: parseFloat(priceMax) } }),
+                },
+                include: {
+                    category: true,
+                    images: true,
+                }
+            });
+
+            resp.status(200).json({
+                success: true,
+                data: filteredGames
+            });
+        } catch (e) {
+            console.error("Error filtering games:", e);
+            resp.status(500).json({
+                success: false,
+                data: {
+                    msg: "Unexpected error occurred while filtering games",
+                    error: e
+                }
+            });
+        }
+    });
 
     return router
 }
